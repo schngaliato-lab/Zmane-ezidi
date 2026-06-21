@@ -6,6 +6,7 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
+    margin: 0;
 }
 
 .container {
@@ -27,6 +28,7 @@ input {
     margin: 10px 0;
     border: 1px solid #ccc;
     border-radius: 8px;
+    box-sizing: border-box;
 }
 
 button {
@@ -36,6 +38,8 @@ button {
     color: white;
     border-radius: 8px;
     cursor: pointer;
+    font-size: 16px;
+    width: 90%;
 }
 
 button:hover {
@@ -45,6 +49,6 @@ button:hover {
 #result {
     margin-top: 20px;
     font-size: 20px;
-    color: green;
     font-weight: bold;
+    min-height: 30px;
 }
