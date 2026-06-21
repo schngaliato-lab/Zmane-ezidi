@@ -1,32 +1,21 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>القاموس الذكي النيون | Smart Dictionary</title>
+    <title>قاموس عربي - إنجليزي</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="dictionary-container rtl-dir" id="dictionaryContainer">
-        <h1 id="mainTitle">القاموس الذكي</h1>
+    <div class="container">
+        <h1>📖 قاموس عربي - إنجليزي</h1>
 
-        <div class="toggle-container">
-            <span class="lang-label active" id="lblArEn">عربي ← إنجليزي</span>
-            <label class="switch">
-                <input type="checkbox" id="langToggle">
-                <span class="slider"></span>
-            </label>
-            <span class="lang-label" id="lblEnAr">English → Arabic</span>
-        </div>
+        <input type="text" id="wordInput" placeholder="أدخل كلمة عربية">
 
-        <div class="search-box">
-            <input type="text" id="searchInput" placeholder="اكتب الكلمة العربية واضغط Enter...">
-        </div>
+        <button onclick="translateWord()">ترجمة</button>
 
-        <div class="result-box" id="resultBox">
-            <div class="empty-state" id="emptyState">اكتب الكلمة واضغط Enter واستمتع بالبحث الحي الفوري المرفق بالصوت...</div>
-        </div>
+        <div id="result"></div>
     </div>
 
     <script src="script.js"></script>
