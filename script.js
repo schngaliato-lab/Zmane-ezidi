@@ -1,4 +1,3 @@
-
 const dictionary = {
     "مرحبا": "Hello",
     "كتاب": "Book",
@@ -17,8 +16,10 @@ function translateWord() {
     const result = document.getElementById("result");
 
     if (dictionary[word]) {
+        result.style.color = "green";
         result.innerHTML = الترجمة: ${dictionary[word]};
     } else {
+        result.style.color = "red";
         result.innerHTML = "الكلمة غير موجودة في القاموس";
     }
 }
