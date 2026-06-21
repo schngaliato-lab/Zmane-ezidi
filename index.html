@@ -1,23 +1,354 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>قاموس عربي - إنجليزي</title>
-    <link rel="stylesheet" href="style.css">
+    <title>القاموس الذكي | Smart Dictionary</title>
+    <style>
+        /* إعدادات الخطوط والخلفية العامة */
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&family=Poppins:wght@300;400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #f8fafc;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+
+        /* حاوية القاموس الرئيسية (تأثير الزجاج) */
+        .dictionary-container {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 550px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            transition: all 0.4s ease;
+        }
+
+        /* العنوان */
+        h1 {
+            text-align: center;
+            font-size: 2.2rem;
+            font-weight: 900;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #38bdf8, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+
+        /* زر تبديل اتجاه الترجمة */
+        .toggle-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .lang-label {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #94a3b8;
+            transition: color 0.3s;
+        }
+
+        .lang-label.active {
+            color: #38bdf8;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #475569;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        input:checked + .slider {
+            background-color: #a855f7;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+
+        /* صندوق البحث */
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 16px 25px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            background: rgba(15, 23, 42, 0.6);
+            color: #fff;
+            font-size: 1.1rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-box input:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+        }
+
+        /* صندوق النتيجة */
+        .result-box {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 16px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .result-title {
+            font-size: 0.9rem;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .word-output {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 10px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .word-definition {
+            font-size: 1.1rem;
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+
+        .empty-state {
+            color: #475569;
+            font-style: italic;
+        }
+
+        /* أنيميشن ناعم عند ظهور النتائج */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ضبط الاتجاهات تلقائياً بناءً على اللغة المحددة */
+        .ltr-dir {
+            direction: ltr;
+        }
+        .rtl-dir {
+            direction: rtl;
+        }
+    </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>📖 قاموس عربي - إنجليزي</h1>
+    <div class="dictionary-container" id="dictionaryContainer">
+        <h1 id="mainTitle">القاموس الذكي</h1>
 
-        <input type="text" id="wordInput" placeholder="أدخل كلمة عربية">
+        <div class="toggle-container">
+            <span class="lang-label active" id="lblArEn">عربي ← إنجليزي</span>
+            <label class="switch">
+                <input type="checkbox" id="langToggle">
+                <span class="slider"></span>
+            </label>
+            <span class="lang-label" id="lblEnAr">English → Arabic</span>
+        </div>
 
-        <button onclick="translateWord()">ترجمة</button>
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="اكتب الكلمة للبحث عنها...">
+        </div>
 
-        <div id="result"></div>
+        <div class="result-box" id="resultBox">
+            <div class="empty-state" id="emptyState">ابدأ بكتابة أي كلمة لاستخراج الترجمة فوراً...</div>
+            <div id="resultContent" style="display: none;">
+                <div class="result-title" id="resultTitle">الترجمة / Translation</div>
+                <div class="word-output" id="wordOutput">Word</div>
+                <div class="word-definition" id="wordDefinition">المعنى هنا...</div>
+            </div>
+        </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        // قاعدة بيانات القاموس (مجموعة كلمات تجريبية غنية، يمكنك التوسع فيها)
+        const dictionary = {
+            'ar-en': {
+                'كتاب': 'Book',
+                'مدرسة': 'School',
+                'قلم': 'Pen',
+                'ذكاء': 'Intelligence',
+                'جميل': 'Beautiful',
+                'برمجة': 'Programming',
+                'مطور': 'Developer',
+                'حاسوب': 'Computer',
+                'العلم': 'Science',
+                'الحياة': 'Life',
+                'سلام': 'Peace',
+                'إبداع': 'Creativity'
+            },
+            'en-ar': {
+                'book': 'كتاب',
+                'school': 'مدرسة',
+                'pen': 'قلم',
+                'intelligence': 'ذكاء إصطناعي / ذكاء',
+                'beautiful': 'جميل / رائعة',
+                'programming': 'برمجة',
+                'developer': 'مطور برمجيات',
+                'computer': 'حاسوب / كمبيوتر',
+                'science': 'العلم / العلوم',
+                'life': 'الحياة',
+                'peace': 'سلام / أمان',
+                'creativity': 'إبداع / ابتكار'
+            }
+        };
+
+        // جلب عناصر الـ DOM
+        const langToggle = document.getElementById('langToggle');
+        const searchInput = document.getElementById('searchInput');
+        const emptyState = document.getElementById('emptyState');
+        const resultContent = document.getElementById('resultContent');
+        const wordOutput = document.getElementById('wordOutput');
+        const wordDefinition = document.getElementById('wordDefinition');
+        const mainTitle = document.getElementById('mainTitle');
+        const lblArEn = document.getElementById('lblArEn');
+        const lblEnAr = document.getElementById('lblEnAr');
+        const dictionaryContainer = document.getElementById('dictionaryContainer');
+
+        let currentMode = 'ar-en'; // الوضع الافتراضي (عربي إلى إنجليزي)
+
+        // الاستماع لزر التبديل بين اللغات
+        langToggle.addEventListener('change', () => {
+            if (langToggle.checked) {
+                currentMode = 'en-ar';
+                // تحديث الواجهة للغة الإنجليزية
+                document.body.style.direction = 'ltr';
+                dictionaryContainer.className = "dictionary-container ltr-dir";
+                searchInput.placeholder = "Type a word to search...";
+                emptyState.textContent = "Start typing to look up words instantly...";
+                mainTitle.textContent = "Smart Dictionary";
+                lblEnAr.classList.add('active');
+                lblArEn.classList.remove('active');
+            } else {
+                currentMode = 'ar-en';
+                // إعادة الواجهة للغة العربية
+                document.body.style.direction = 'rtl';
+                dictionaryContainer.className = "dictionary-container rtl-dir";
+                searchInput.placeholder = "اكتب الكلمة للبحث عنها...";
+                emptyState.textContent = "ابدأ بكتابة أي كلمة لاستخراج الترجمة فوراً...";
+                mainTitle.textContent = "القاموس الذكي";
+                lblArEn.classList.add('active');
+                lblEnAr.classList.remove('active');
+            }
+            // إعادة ضبط البحث عند التغيير
+            searchInput.value = '';
+            resetResult();
+        });
+
+        // الاستماع لعملية الكتابة (البحث الفوري)
+        searchInput.addEventListener('input', () => {
+            let query = searchInput.value.trim();
+            
+            if (query === '') {
+                resetResult();
+                return;
+            }
+
+            // لضمان دقة البحث في الإنجليزية (حروف صغيرة)
+            if (currentMode === 'en-ar') {
+                query = query.toLowerCase();
+            }
+
+            const database = dictionary[currentMode];
+            
+            // البحث عن الكلمة في قاعدة البيانات
+            if (database[query]) {
+                showResult(query, database[query]);
+            } else {
+                // إذا لم يتم العثور على الكلمة
+                showNotFound();
+            }
+        });
+
+        function showResult(original, translated) {
+            emptyState.style.display = 'none';
+            resultContent.style.display = 'block';
+            wordOutput.textContent = original;
+            wordDefinition.textContent = translated;
+        }
+
+        function showNotFound() {
+            emptyState.style.display = 'block';
+            resultContent.style.display = 'none';
+            emptyState.textContent = currentMode === 'ar-en' ? "عذراً، هذه الكلمة غير متوفرة حالياً." : "Sorry, word not found.";
+        }
+
+        function resetResult() {
+            emptyState.style.display = 'block';
+            resultContent.style.display = 'none';
+            emptyState.textContent = currentMode === 'ar-en' ? "ابدأ بكتابة أي كلمة لاستخراج الترجمة فوراً..." : "Start typing to look up words instantly...";
+        }
+    </script>
 </body>
 </html>
+
